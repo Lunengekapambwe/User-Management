@@ -9,12 +9,12 @@
 </head>
 <body>
     <header>
-        <h1>Welcome User Management System</h1>
+        <h1>Welcome to the User Management System</h1>
     </header>
     <?php
     // Step 1: Define variables to store user input and error messages
-$name = $email = $phone = $comment = $id_number = $city = "";
-$nameErr = $emailErr = $phoneErr = $imageErr = $idNumberErr = $cityErr = "";
+$name = $email = $phone = $id_number = $city = $gender = "";
+$nameErr = $emailErr = $phoneErr = $imageErr = $idNumberErr = $cityErr = $genderErr = "";
 
 // Step 2: Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -90,8 +90,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Add any additional validation for City if needed
     }
 
-    // Validate Comment (Optional, just clean the input)
-    $comment = clean_input($_POST["comment"]); // Clean input
+    // Validate Gender (Required)
+    if (empty($_POST["gender"])) {
+        $genderErr = "Gender is required"; // Set error message
+    } else {
+        $gender = clean_input($_POST["gender"]); // Clean input
+    }
+
+    // Clear form fields after successful submission
+    if (empty($nameErr) && empty($emailErr) && empty($phoneErr) && empty($imageErr) && empty($idNumberErr) && empty($cityErr) && empty($genderErr)) {
+        $name = $email = $phone  = $id_number = $city = "";
+    }
 }
 
 // Step 3: Function to clean input data (prevents hacking)
@@ -107,13 +116,25 @@ function clean_input($data) {
     <section id="user-form">
     <h2>User Registration</h2>
 
+    <hr>
+
 <p><span class="required">* Required fields</span></p>
 
 <!-- Step 4: Create the HTML form -->
-<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data"> 
+<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data">
     <!-- Name field -->
     Name: <input type="text" name="name" value="<?php echo $name; ?>"> <!-- Retains value after submission -->
     <span class="error">* <?php echo $nameErr; ?></span> <!-- Show error if any -->
+    <br><br>
+
+    <!-- Gender dropdown -->
+    Gender:
+    <select name="gender">
+        <option value="" <?php echo (empty($_POST['gender'])) ? 'selected' : ''; ?>>Select Gender</option>
+        <option value="M" <?php echo (isset($_POST['gender']) && $_POST['gender'] == 'M') ? 'selected' : ''; ?>>Male</option>
+        <option value="F" <?php echo (isset($_POST['gender']) && $_POST['gender'] == 'F') ? 'selected' : ''; ?>>Female</option>
+    </select>
+    <span class="error">* <?php echo $genderErr; ?></span> <!-- Show error if any -->
     <br><br>
     
     <!-- Email field -->
@@ -139,9 +160,6 @@ function clean_input($data) {
     Upload Photo: <i style="font-size: smaller;"> Passport size photo or portrait </i> <br> <br> <input type="file" name="image" accept="image/*"><br>
     <span class="error">* <?php echo $imageErr; ?></span> <!-- Show error if any -->
     <br><br>
-    <!-- Comment textarea -->
-    Comment:<br> <textarea name="comment" rows="5" cols="40"><?php echo $comment; ?></textarea> <!-- Retains value -->
-    <br><br>
     
     <!-- Submit button -->
     <input type="submit" name="submit" value="Submit"> <!-- Submits the form -->
@@ -154,7 +172,7 @@ function clean_input($data) {
 
     
         // Step 5: Display submitted data if there are no errors
-        if ($_SERVER["REQUEST_METHOD"] == "POST" && empty($nameErr) && empty($emailErr) && empty($websiteErr)) {
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && empty($nameErr) && empty($emailErr) && empty($phoneErr) && empty($imageErr) && empty($idNumberErr) && empty($cityErr)) {
             echo "<h2>Your Submitted Data:</h2>"; // Display heading
             echo "Name: " . $name . "<br>"; // Show Name
             echo "Email: " . $email . "<br>"; // Show Email
@@ -164,6 +182,3 @@ function clean_input($data) {
         ?>
 
     </section>
-
-
-
